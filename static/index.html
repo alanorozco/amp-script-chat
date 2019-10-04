@@ -1,0 +1,175 @@
+<!doctype html>
+<html amp lang="en">
+  <head>
+    <meta charset="utf-8">
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+    <script async custom-element="amp-script" src="https://cdn.ampproject.org/v0/amp-script-latest.js"></script>
+    <script async custom-element="amp-form" src="https://cdn.ampproject.org/v0/amp-form-latest.js"></script>
+    <title>amp-script chat</title>
+    <link rel="canonical" href="https://MY-CHAT-APP.example/">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <style amp-custom>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 14px;
+        line-height: 1.5;
+        background: #f8edf0;
+      }
+      main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        padding: 20px;
+        height: 100vh;
+      }
+      amp-script {
+        width: 100%;
+        max-width: 400px;
+        background: #e6cdd7;
+        border: 1px solid #dab1c0;
+      }
+      form {
+        overflow: hidden;
+      }
+      label {
+        display: block;
+      }
+      button {
+        display: block;
+        width: 80px;
+        padding: 0;
+        height: 3.25em;
+        margin-top: -3.25em;
+        background: none;
+        font: inherit;
+        font-weight: bold;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        border: none;
+        position: absolute;
+        right: 0;
+        cursor: pointer;
+      }
+      ul, li {
+        display: block;
+        list-style: none;
+      }
+      input {
+        box-sizing: border-box;
+        width: 100%;
+        height: 3em;
+        padding: 1em 80px 1em 1em;
+        font: inherit;
+        border: 1px solid transparent;
+        border-width: 1px 0 0;
+        background: rgba(255, 255, 255, 0.4);
+      }
+      input:focus {
+        border-color: #dab1c0;
+        background: white;
+        outline: none;
+      }
+      .chat {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      #messages {
+        flex: 1;
+        overflow: auto;
+        padding: 0;
+        margin: 0;
+      }
+      #messages > li {
+        padding: 0.5em 0 0;
+        overflow: hidden;
+      }
+      .username {
+        margin-right: 0.75em;
+      }
+      .self > .username {
+        display: none;
+      }
+      .meta {
+        text-align: center;
+      }
+      .activity {
+        font-style: italic;
+      }
+      .timestamp {
+        font-size: 0.85em;
+        padding: 1em 0 0.5em;
+        margin: 0 0 0.5em;
+        border-bottom: 1px solid #f8edf0;
+      }
+      .bubble {
+        margin: 0 1em;
+        padding: 0.5em 1em;
+        background: white;
+        border-radius: 1.5em;
+        position: relative; 
+        float: left;
+      }
+      .timestamp + .bubble {
+        margin-top: 0.5em;
+      }
+      .bubble.self {
+        float: right;
+        background: #f8edf0;
+      }
+      .label-text {
+        padding: 1em;
+      }
+      #messages * {
+        /* disable children of scrollable as anchor nodes. */
+        overflow-anchor: none;
+      }
+      #messages::after {
+        /* set a final pseudo-element to anchor to bottom. */
+        content: '';
+        margin: 0.5em 0 0;
+        display: block;
+        overflow-anchor: auto;
+        height: 1px;
+      }
+      .error {
+        color: #a52d47;
+        font-weight: bold;
+        padding: 0 1em 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <!-- 
+        `amp-script` only allows DOM mutations within 5 seconds after a user
+        gesture, except when it's <= 300px high. Set `fixed-height` at 298px
+        since the 1px wrapping border via CSS affects measured dimensions.
+      -->
+      <amp-script
+        src="client.js"
+        sandbox="allow-forms"
+        layout="fixed-height"
+        height="298"
+      >
+        <div class="chat">
+          <ul id="messages"></ul>
+          <form action="#" id="set-username" target="_top">
+            <label for="username-field">
+              <div class="label-text">What's your username?</div>
+              <input autocomplete="off" autofocus id="username-field" />
+            </label>
+            <button>Join</button>
+          </form>
+          <form action="#" id="send" target="_top" hidden>
+            <input autocomplete="off" autofocus id="message-field" />
+            <button>Send</button>
+          </form>
+        </div>
+      </amp-script>
+    </main>
+  </body>
+</html>
