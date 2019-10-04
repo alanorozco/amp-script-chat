@@ -22,7 +22,7 @@
  */
 
 /** Display a timestamp header after N seconds between messages. */
-var MIN_TIMESTAMP_HEADER_DELTA = 10;
+var MIN_TIMESTAMP_HEADER_DELTA = 15 * 60;
 
 /** Ping every N seconds. */
 var PING_FREQ = 30;
