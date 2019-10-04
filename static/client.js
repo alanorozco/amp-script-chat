@@ -176,25 +176,27 @@ function waitToPing() {
  * form.
  */
 function displayError(error) {
-  const forms = document.querySelectorAll('form');
+  var forms = document.querySelectorAll('form');
+
   for (var i = 0; i < forms.length; i++) {
     var form = forms[i];
-    if (form.hasAttribute('hidden')) {
-      continue;
+
+    if (!form.hasAttribute('hidden')) {
+      var field = document.querySelector('input');
+
+      var errorContainer =
+        form.querySelector('.error') ||
+        document.createElement('div');
+
+      errorContainer.classList.add('error');
+      errorContainer.textContent = error;
+
+      if (!errorContainer.parentNode) {
+        field.parentNode.insertBefore(errorContainer, field);
+      }
+      
+      return;
     }
-    const field = document.querySelector('input');
-
-    const errorContainer =
-      form.querySelector('.error') ||
-      document.createElement('div');
-
-    errorContainer.classList.add('error');
-    errorContainer.textContent = error;
-
-    if (!errorContainer.parentNode) {
-      field.parentNode.insertBefore(errorContainer, field);
-    }
-    return;
   }
 }
 
