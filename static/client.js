@@ -1,4 +1,20 @@
 /**
+ * Copyright 2018 The AMP HTML Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS-IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+ /**
  * `amp-script` client for Websocket chat server through `ws.js`.
  * (Demo quality, don't use this in production. ❤️)
  * 
@@ -35,6 +51,9 @@ var session = {
   lastMessageTimestamp: 0, // last received timestamp for header display deltas
 };
 
+/** Re-usable, only for serializing/formatting. */
+var serializableDate = new Date();
+
 /** Sends `message` as serialized JSON to WS host, including auth fields. */
 function sendJson(message) {
   connection.send(JSON.stringify(Object.assign({
@@ -45,26 +64,16 @@ function sendJson(message) {
 
 /** Converts UNIX timestamp to ISO-formatted string. */
 function unixTimeToIso(timestamp) {
-  var date = new Date();
-  date.setTime(timestamp * 1000);
-  return date.toUTCString();
+  serializableDate.setTime(timestamp * 1000);
+  return serializableDate.toUTCString();
 }
 
 /** Renders a received broadcast message. */
 function renderMessage(message) {
-  if (message.join) {
-    return renderActivityMessage(message.username, message.timestamp, 'joined');
-  }
-
-  if (message.leave) {
-    return renderActivityMessage(message.username, message.timestamp, 'left');
-  }
-
-  // Text content.
-  var container = renderMessageContainer(message.timestamp);
-  container.classList.add('content');
-  container.appendChild(renderBubble(message.username, message.content));
-  return container;
+  return (
+    renderActivityMessage(message) ||
+    renderTextContentMessage(message)
+  );
 }
 
 /**
@@ -105,22 +114,53 @@ function maybeRenderTimestampHeader(timestamp) {
 }
 
 /**
- * Renders an activity message in format `${username} ${verbPastTense}.`, e.g.
- * "alan has joined".
+ * Renders an optional activity message in format
+ * `${username} ${verbPastTense}.`, e.g. "alan has joined".
+ * 
+ * If the message is not activity-related, `null` is returned.
+ * 
  * Includes timestamp header if `MIN_TIMESTAMP_HEADER_DELTA` seconds have passed
  * since the last received message.
  */
-function renderActivityMessage(username, timestamp, verbPastTense) {
-  var container = renderMessageContainer(timestamp);
+function renderActivityMessage(message) {
+  var verbPastTense = activityVerbFromMessage(message);
+
+  if (!verbPastTense) {
+    return null;
+  }
+
+  var container = renderMessageContainer(message.timestamp);
   var textContainer = document.createElement('span');
 
   container.classList.add('meta');
   textContainer.classList.add('activity');
 
-  textContainer.textContent = username + ' ' + verbPastTense + '.';
+  textContainer.textContent = message.username + ' ' + verbPastTense + '.';
 
   container.appendChild(textContainer);
 
+  return container;
+}
+
+/**
+ * Returns an optional activity verb in past tense, like "joined" when
+ * `message.joined == true`.
+ */
+function activityVerbFromMessage(message) {
+  if (message.join) {
+    return 'joined';
+  }
+  if (message.leave) {
+    return 'left';
+  }
+  return null;
+}
+
+/** Renders a user-generated text message. */
+function renderTextContentMessage(message) {
+  var container = renderMessageContainer(message.timestamp);
+  container.classList.add('content');
+  container.appendChild(renderBubble(message.username, message.content));
   return container;
 }
 
@@ -155,7 +195,7 @@ function renderBubble(username, content) {
  * Authenticates with a received session token. Swaps username form with message
  * form and sets up ping sequence.
  */
-function authAs(username, token) {
+function setSession(username, token) {
   session.username = username;
   session.token = token;
   setUsernameForm.setAttribute('hidden');
@@ -217,7 +257,7 @@ connection.onmessage = function(event) {
 
   if (message.token) {
     // Receving a session token is an acknowledged handshake. 
-    authAs(message.username, message.token);
+    setSession(message.username, message.token);
     return;
   }
 
@@ -229,17 +269,8 @@ connection.onmessage = function(event) {
   document.querySelector('#messages').appendChild(renderMessage(message));
 };
 
-var sendForm = document.querySelector('#send');
 var setUsernameForm = document.querySelector('#set-username');
-
-// Send message content when submitting message form.
-sendForm.addEventListener('submit', function(event) {
-  event.preventDefault();
-  
-  var field = document.querySelector('#message-field');
-  sendJson({content: field.value});
-  field.value = ''; // clear
-});
+var sendForm = document.querySelector('#send');
 
 // Authenticate content when submitting username form.
 setUsernameForm.addEventListener('submit', function(event) {
@@ -249,4 +280,14 @@ setUsernameForm.addEventListener('submit', function(event) {
     username: document.querySelector('#username-field').value,
     join: true,
   });
+});
+
+
+// Send message content when submitting message form.
+sendForm.addEventListener('submit', function(event) {
+  event.preventDefault();
+  
+  var field = document.querySelector('#message-field');
+  sendJson({content: field.value});
+  field.value = ''; // clear
 });
