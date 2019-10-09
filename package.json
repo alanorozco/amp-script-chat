@@ -1,0 +1,21 @@
+{
+  "name": "amp-script-chat",
+  "version": "0.0.0",
+  "description": "amp-script chat client",
+  "main": "index.js",
+  "scripts": {
+    "serve": "node -r esm ws.js & serve ./static --listen 8000"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Alan Orozco",
+    "email": "alan@orozco.xyz",
+    "url": "https://alanoroz.co"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "esm": "3.2.25",
+    "serve": "11.2.0",
+    "ws": "7.1.2"
+  }
+}
